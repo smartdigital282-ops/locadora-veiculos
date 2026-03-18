@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locadora de Veículos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .logo span {
+            color: #fff;
+        }
+
+        nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        nav button {
+            background: transparent;
+            border: 2px solid #00d4ff;
+            color: #00d4ff;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        nav button:hover {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        nav button.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        /* Cards Grid */
+        .vehicles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .vehicle-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,212,255,0.2);
+        }
+
+        .vehicle-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #2a2a4a;
+        }
+
+        .vehicle-info {
+            padding: 1.5rem;
+        }
+
+        .vehicle-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .vehicle-info .details {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .vehicle-info .price {
+            font-size: 1.5rem;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .vehicle-info .price span {
+            font-size: 0.9rem;
+            color: #aaa;
+            font-weight: normal;
+        }
+
+        .btn-rent {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: opacity 0.3s;
+        }
+
+        .btn-rent:hover {
+            opacity: 0.9;
+        }
+
+        .btn-rent:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status.disponivel {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .status.indisponivel {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #aaa;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 0.8rem;
+            background: transparent;
+            border: 1px solid #666;
+            border-radius: 8px;
+            color: #aaa;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .error-msg {
+            color: #ff4444;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .success-msg {
+            color: #00ff88;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        /* User Menu */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-menu span {
+            color: #00d4ff;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #aaa;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">🚗 Loca<span>Car</span></div>
+        <nav id="nav-buttons">
+            <button onclick="showLogin()">Entrar</button>
+            <button onclick="showRegister()">Cadastrar</button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Alugue o carro dos seus sonhos</h1>
+            <p>Os melhores veículos com os melhores preços</p>
+        </section>
+
+        <section id="vehicles-container">
+            <div class="loading">Carregando veículos...</div>
+        </section>
+    </main>
+
+    <!-- Modal Login -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2>🔐 Entrar</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div id="loginError" class="error-msg"></div>
+                <button type="submit" class="btn-primary">Entrar</button>
+                <button type="button" class="btn-secondary" onclick="closeModals()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Register -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <h2>📝 Cadastrar</h2>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="registerPassword" required minlength="6">
+                </div>
+                <div id="registerError" class="error-msg"></div>
+                <div id="registerSuccess" class="success-msg"></div>
+                <button type="submit" class="btn-primary">Cadastrar</button>
+                <button type="button" class="btn-secondary" onclick="closeModals()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Locação -->
+    <div class="modal" id="rentModal">
+        <div class="modal-content">
+            <h2>📅 Reservar Veículo</h2>
+            <form onsubmit="handleRent(event)">
+                <input type="hidden" id="rentVehicleId">
+                <div class="form-group">
+                    <label>Data de Início</label>
+                    <input type="date" id="rentStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Data de Fim</label>
+                    <input type="date" id="rentEndDate" required>
+                </div>
+                <div id="rentError" class="error-msg"></div>
+                <div id="rentSuccess" class="success-msg"></div>
+                <button type="submit" class="btn-primary">Confirmar Reserva</button>
+                <button type="button" class="btn-secondary" onclick="closeModals()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuração da API
+        const API_URL = window.location.origin + '/api';
+        
+        // Estado da aplicação
+        let currentUser = null;
+        let token = localStorage.getItem('token');
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadVehicles();
+            setMinDates();
+        });
+
+        // Verificar autenticação
+        function checkAuth() {
+            const savedUser = localStorage.getItem('user');
+            if (token && savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateNavbar();
+            }
+        }
+
+        // Atualizar navbar
+        function updateNavbar() {
+            const nav = document.getElementById('nav-buttons');
+            if (currentUser) {
+                nav.innerHTML = `
+                    <div class="user-menu">
+                        <span>Olá, ${currentUser.nome}</span>
+                        <button onclick="logout()">Sair</button>
+                    </div>
+                `;
+            } else {
+                nav.innerHTML = `
+                    <button onclick="showLogin()">Entrar</button>
+                    <button onclick="showRegister()">Cadastrar</button>
+                `;
+            }
+        }
+
+        // Carregar veículos
+        async function loadVehicles() {
+            try {
+                const response = await fetch(`${API_URL}/veiculos`);
+                const vehicles = await response.json();
+                renderVehicles(vehicles);
+            } catch (error) {
+                document.getElementById('vehicles-container').innerHTML = `
+                    <div class="loading">Erro ao carregar veículos. Tente novamente.</div>
+                `;
+            }
+        }
+
+        // Renderizar veículos
+        function renderVehicles(vehicles) {
+            const container = document.getElementById('vehicles-container');
+            
+            if (vehicles.length === 0) {
+                container.innerHTML = '<div class="loading">Nenhum veículo disponível no momento.</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="vehicles-grid">
+                    ${vehicles.map(v => `
+                        <div class="vehicle-card">
+                            <img src="${v.imagem_url || 'https://via.placeholder.com/400x200/2a2a4a/00d4ff?text=' + v.marca + '+' + v.modelo}" 
+                                 alt="${v.marca} ${v.modelo}"
+                                 onerror="this.src='https://via.placeholder.com/400x200/2a2a4a/00d4ff?text=Sem+Imagem'">
+                            <div class="vehicle-info">
+                                <span class="status ${v.disponivel ? 'disponivel' : 'indisponivel'}">
+                                    ${v.disponivel ? '✓ Disponível' : '✗ Indisponível'}
+                                </span>
+                                <h3>${v.marca} ${v.modelo}</h3>
+                                <div class="details">
+                                    📅 ${v.ano} &nbsp;|&nbsp; 🎨 ${v.cor} &nbsp;|&nbsp; 🔖 ${v.placa}
+                                </div>
+                                <div class="price">
+                                    R$ ${parseFloat(v.valor_diaria).toFixed(2)} <span>/dia</span>
+                                </div>
+                                <button class="btn-rent" 
+                                        onclick="rentVehicle(${v.id})" 
+                                        ${!v.disponivel ? 'disabled' : ''}>
+                                    ${v.disponivel ? '🚀 Alugar Agora' : 'Indisponível'}
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Funções de Modal
+        function showLogin() {
+            closeModals();
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function showRegister() {
+            closeModals();
+            document.getElementById('registerModal').classList.add('active');
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+            document.querySelectorAll('.error-msg, .success-msg').forEach(el => el.textContent = '');
+        }
+
+        // Login
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const senha = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorEl.textContent = data.error || 'Erro ao fazer login';
+                    return;
+                }
+
+                token = data.token;
+                currentUser = data.user;
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                
+                closeModals();
+                updateNavbar();
+                loadVehicles();
+            } catch (error) {
+                errorEl.textContent = 'Erro de conexão';
+            }
+        }
+
+        // Registro
+        async function handleRegister(e) {
+            e.preventDefault();
+            const nome = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const senha = document.getElementById('registerPassword').value;
+            const errorEl = document.getElementById('registerError');
+            const successEl = document.getElementById('registerSuccess');
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, senha })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorEl.textContent = data.error || 'Erro ao cadastrar';
+                    return;
+                }
+
+                successEl.textContent = 'Cadastro realizado! Faça login.';
+                setTimeout(() => {
+                    closeModals();
+                    showLogin();
+                }, 2000);
+            } catch (error) {
+                errorEl.textContent = 'Erro de conexão';
+            }
+        }
+
+        // Alugar veículo
+        function rentVehicle(vehicleId) {
+            if (!currentUser) {
+                showLogin();
+                return;
+            }
+            document.getElementById('rentVehicleId').value = vehicleId;
+            document.getElementById('rentModal').classList.add('active');
+        }
+
+        // Confirmar locação
+        async function handleRent(e) {
+            e.preventDefault();
+            const veiculo_id = document.getElementById('rentVehicleId').value;
+            const data_inicio = document.getElementById('rentStartDate').value;
+            const data_fim = document.getElementById('rentEndDate').value;
+            const errorEl = document.getElementById('rentError');
+            const successEl = document.getElementById('rentSuccess');
+
+            if (new Date(data_fim) <= new Date(data_inicio)) {
+                errorEl.textContent = 'Data de fim deve ser após a data de início';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/locacoes`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ veiculo_id, data_inicio, data_fim })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorEl.textContent = data.error || 'Erro ao fazer reserva';
+                    return;
+                }
+
+                successEl.textContent = `Reserva confirmada! Total: R$ ${data.valor_total.toFixed(2)}`;
+                setTimeout(() => {
+                    closeModals();
+                    loadVehicles();
+                }, 3000);
+            } catch (error) {
+                errorEl.textContent = 'Erro de conexão';
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            token = null;
+            currentUser = null;
+            updateNavbar();
+            loadVehicles();
+        }
+
+        // Definir datas mínimas
+        function setMinDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('rentStartDate').min = today;
+            document.getElementById('rentEndDate').min = today;
+        }
+    </script>
+</body>
+</html>
